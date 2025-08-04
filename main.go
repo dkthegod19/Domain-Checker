@@ -9,9 +9,13 @@ import (
 	"strings"
 )
 
+const spfPrefix = "v=spf1"
+const sprPrefix = "v=DMARC1"
+const dmarcDomain = "_dmarc."
+
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Printf("Email Info \n Domain \n HasMX \n HasSPF \n SPRRecord \n HasDemarc \n DmarcRecord \n")
+	fmt.Printf("Domain Checker \n Domain \n HasMX \n HasSPF \n SPRRecord \n HasDemarc \n DmarcRecord \n")
 	for scanner.Scan() {
 		checkdomain(scanner.Text())
 	}
@@ -35,22 +39,22 @@ func checkdomain(domain string) {
 		log.Printf("Error: %v\n", err)
 	}
 	for _, record := range txtRecords {
-		if strings.HasPrefix(record, "v=spf1") {
+		if strings.HasPrefix(record, spfPrefix) {
 			hasSPF = true
 			spfRecord = record
 			break
 		}
 	}
-	dmarcRecords, err := net.LookupTXT("_dmarc." + domain)
+	dmarcRecords, err := net.LookupTXT(dmarcDomain + domain)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
 	}
 	for _, record := range dmarcRecords {
-		if strings.HasPrefix(record, "v=DMARC1") {
+		if strings.HasPrefix(record, sprPrefix) {
 			hasDMARC = true
 			sprRecord = record
 			break
 		}
 	}
-	fmt.Printf("Email Info \n Domain: %v \n HasMX: %v \n HasSPF: %v \n SPRRecord: %v \n HasDemarc: %v \n DmarcRecord: %v \n", domain, hasMX, hasSPF, spfRecord, hasDMARC, sprRecord)
+	fmt.Printf("Domain Checker \n Domain: %v \n HasMX: %v \n HasSPF: %v \n SPRRecord: %v \n HasDemarc: %v \n DmarcRecord: %v \n", domain, hasMX, hasSPF, spfRecord, hasDMARC, sprRecord)
 }
